@@ -1,5 +1,7 @@
 #include "ContactsBook.h"
 #include <fstream>
+#include<string>
+using namespace std;
 // Constructor
 ContactsBook::ContactsBook(int size_of_list)
 {
@@ -13,6 +15,20 @@ ContactsBook::~ContactsBook()
 {
 	// Delete the contacts_list array
 	delete[] contacts_list;
+}
+// Copy Constructor
+ContactsBook::ContactsBook(const ContactsBook& other)
+{
+	// Copy the size and count members
+	size_of_contacts = other.size_of_contacts;
+	contacts_count = other.contacts_count;
+	// Allocate a new array of the same size
+	contacts_list = new Contact[size_of_contacts];
+	// Copy the contacts from the other object to this object
+	for (size_t i = 0; i < contacts_count; i++)
+	{
+		contacts_list[i] = *(other.contacts_list[i].copy_contact());
+	}
 }
 void ContactsBook::add_contact(const Contact& contact)
 {
@@ -107,7 +123,7 @@ Contact* ContactsBook::copy_list(Contact *contacts_list)
 	return temp;
 
 }
-bool compare_contacts(Contact& contact1, Contact& contact2, string choice) {
+bool compare_contacts(Contact& contact1, Contact& contact2, std::string choice) {
 	if (choice == "first_name") {
 		return contact1.get_first_name() > contact2.get_first_name();
 	}
@@ -128,15 +144,14 @@ void ContactsBook::print_contacts_sorted(string choice)
 	// [First Name] [Last Name] [Mobile] [Email]
 	for (size_t i = 0; i < contacts_count; i++)
 	{
-		cout << left << setw(10) << copy[i].get_first_name() << setw(10) << copy[i].get_last_name() << setw(14)
-			<< copy[i].get_mobile_number() << copy[i].get_email_address() << endl;
+		cout << left << std::setw(10) << copy[i].get_first_name() << setw(10) << copy[i].get_last_name() << setw(14) << copy[i].get_mobile_number() << copy[i].get_email_address() << endl;
 		// Call the address print function to print address on next line
 		copy[i].get_address()->print_address();
 		cout << endl;
 	}
 	delete[] copy;
 }
-void ContactsBook::sort_contacts_list(Contact *contacts_list, std::string choice)
+void ContactsBook::sort_contacts_list(Contact *contacts_list, string choice)
 {
 	// Bubble Sort
 	for (int i = 0; i < contacts_count - 1; ++i) {
@@ -153,12 +168,12 @@ void ContactsBook::sort_contacts_list(Contact *contacts_list, std::string choice
 void ContactsBook::print_contacts() const {
 	// Print the contacts in the order they were added
 	for (size_t i = 0; i < contacts_count; i++) {
-		cout << left << setw(10) << contacts_list[i].get_first_name() << setw(10) << contacts_list[i].get_last_name()
-			<< setw(14) << contacts_list[i].get_mobile_number() << contacts_list[i].get_email_address() << endl;
+		cout << left << std::setw(10) << contacts_list[i].get_first_name() << setw(10) << contacts_list[i].get_last_name() << setw(14) << contacts_list[i].get_mobile_number() << contacts_list[i].get_email_address() << endl;
 		// Call the address print function to print address on next line
 		contacts_list[i].get_address()->print_address();
-		std::cout << std::endl;
+		cout << endl;
 	}
+
 }
 void ContactsBook::merge_duplicates() {
 	// Iterate through the contacts list to look for duplicates
@@ -181,10 +196,10 @@ void ContactsBook::load_from_file(string file_name)
 {
 	// Follows strict format: first_name,last_name,mobile_number,email_address
 	// 						  house,street,city,country
-	ifstream file(file_name);
+	std::ifstream file(file_name);
 	if (!file.is_open())
 	{
-		cout << "Error opening file" << endl;
+		std::cout << "Error opening file" << std::endl;
 		return;
 	}
 	int count;
@@ -231,12 +246,32 @@ void ContactsBook::save_to_file(string file_name)
 	for (size_t i = 0; i < contacts_count; i++)
 	{
 		// Write the contact attributes to the file
-		file << contacts_list[i].get_first_name() << "," << contacts_list[i].get_last_name() << "," << contacts_list[i].get_mobile_number()
-			<< "," << contacts_list[i].get_email_address() << endl;
+		file << contacts_list[i].get_first_name() << "," << contacts_list[i].get_last_name() << "," << contacts_list[i].get_mobile_number() << "," << contacts_list[i].get_email_address() << endl;
 		// Write the address attributes to the file
-		file << contacts_list[i].get_address()->get_house() << "," << contacts_list[i].get_address()->get_street() 
-			<< "," << contacts_list[i].get_address()->get_city() << "," << contacts_list[i].get_address()->get_country() << endl;
+		file << contacts_list[i].get_address()->get_house() << "," << contacts_list[i].get_address()->get_street() << "," << contacts_list[i].get_address()->get_city() << "," << contacts_list[i].get_address()->get_country() << endl;
 		file << endl;
 	}
 	file.close();
+}
+// Overload assignment operator
+ContactsBook& ContactsBook::operator=(const ContactsBook& other)
+{
+	// Check for self assignment
+	if (this == &other)
+	{
+		return *this;
+	}
+	// Copy the size and count members
+	size_of_contacts = other.size_of_contacts;
+	contacts_count = other.contacts_count;
+	// Delete the old array
+	delete[] contacts_list;
+	// Allocate a new array of the same size
+	contacts_list = new Contact[size_of_contacts];
+	// Copy the contacts from the other object to this object
+	for (size_t i = 0; i < contacts_count; i++)
+	{
+		contacts_list[i] = *(other.contacts_list[i].copy_contact());
+	}
+	return *this;
 }
